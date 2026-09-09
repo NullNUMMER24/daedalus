@@ -1,0 +1,22 @@
+# Rust
+/target
+**/*.rs.bk
+# sqlx offline cache IS committed — CI needs it to compile query! macros.
+# (do not ignore /.sqlx)
+
+# Local state: database, scratch, dev artifacts
+/local/
+*.db
+*.db-shm
+*.db-wal
+
+# Nix
+/result
+/result-*
+.direnv/
+
+# direnv/editor
+.env
+.env.*
+!.env.example
+.DS_Store

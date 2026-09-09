@@ -5,7 +5,7 @@ you will at least know what you were thinking.
 
 ---
 
-### D-001 — Daedalus is a standalone control plane, not a Kubernetes operator
+## D-001 — Daedalus is a standalone control plane, not a Kubernetes operator
 
 **Decision.** `daedalusd` is a plain binary with its own database. It does not
 require Kubernetes to run.
@@ -25,7 +25,7 @@ its runtime.
 
 ---
 
-### D-002 — Git is the source of truth; the database is a cache
+## D-002 — Git is the source of truth; the database is a cache
 
 **Decision.** Desired state lives only in Git. The database holds recorded state,
 events, and audit.
@@ -40,7 +40,7 @@ fiddly. Worth it. See [gitops.md](gitops.md#round-tripping-yaml-without-destroyi
 
 ---
 
-### D-003 — Manifests use the Kubernetes resource shape
+## D-003 — Manifests use the Kubernetes resource shape
 
 **Decision.** `apiVersion` / `kind` / `metadata` / `spec` / `status`.
 
@@ -52,7 +52,7 @@ existing knowledge.
 
 ---
 
-### D-004 — Provider objects are tagged; recorded state is rebuildable
+## D-004 — Provider objects are tagged; recorded state is rebuildable
 
 **Decision.** Every object Daedalus creates carries `daedalus.io/uid`,
 `daedalus.io/tenant`, and `daedalus.io/generation` in whatever metadata the
@@ -68,7 +68,7 @@ candidates do.
 
 ---
 
-### D-005 — Plan and apply are separate, and drift is reported not corrected
+## D-005 — Plan and apply are separate, and drift is reported not corrected
 
 **Decision.** `plan` is read-only and side-effect free. `apply` needs a fresh
 plan. Detected drift is reported; auto-correction is opt-in per resource.
@@ -82,7 +82,7 @@ still refuses destructive recreates.
 
 ---
 
-### D-006 — Tenant isolation is enforced at seven layers, with the hypervisor as backstop
+## D-006 — Tenant isolation is enforced at seven layers, with the hypervisor as backstop
 
 **Decision.** See [multitenancy.md](multitenancy.md). The load-bearing layer is
 per-tenant, pool-scoped provider credentials.
@@ -97,7 +97,7 @@ modes, rather than a database insert. This is the right cost to pay.
 
 ---
 
-### D-007 — Tenant scoping is enforced by the type system
+## D-007 — Tenant scoping is enforced by the type system
 
 **Decision.** Store methods take a `TenantScope` that only the auth middleware
 can construct. There is no method that omits it.
@@ -110,7 +110,7 @@ project.
 
 ---
 
-### D-008 — The web UI is server-rendered with htmx, not a SPA
+## D-008 — The web UI is server-rendered with htmx, not a SPA
 
 **Decision.** Axum + Maud + htmx, compiled into the binary via `rust-embed`. No
 npm, no bundler.
@@ -125,7 +125,7 @@ awkward. If one is ever needed, Leptos can be added for that page alone.
 
 ---
 
-### D-009 — Proxmox first; KubeVirt is provider three
+## D-009 — Proxmox first; KubeVirt is provider three
 
 **Decision.** Phase 3 targets Proxmox VE. The `MachineProvider` trait keeps
 libvirt, KubeVirt and Harvester viable later.
@@ -141,7 +141,7 @@ specifically to prove the abstraction is real.
 
 ---
 
-### D-010 — Application delivery is delegated to Flux
+## D-010 — Application delivery is delegated to Flux
 
 **Decision.** Daedalus provisions clusters and bootstraps a GitOps agent into
 them. It does not reimplement Argo CD.
@@ -155,7 +155,7 @@ layers, and the boundary is clean.
 
 ---
 
-### D-011 — SQLite by default, Postgres optional
+## D-011 — SQLite by default, Postgres optional
 
 **Decision.** SQLite in WAL mode is the default. Postgres behind a feature flag.
 
@@ -167,7 +167,7 @@ is written against both from the start so it is a config change, not a rewrite.
 
 ---
 
-### D-012 — `dae-core` has no I/O dependencies
+## D-012 — `dae-core` has no I/O dependencies
 
 **Decision.** The domain crate depends on no async runtime, database, or HTTP
 client. Enforced by a CI check.
@@ -181,7 +181,7 @@ forces you to think about where logic belongs.
 
 ---
 
-### D-013 — No transactional rollback of infrastructure
+## D-013 — No transactional rollback of infrastructure
 
 **Decision.** Failed applies leave resources `Degraded` and retry with backoff.
 Daedalus does not attempt to undo partial changes.

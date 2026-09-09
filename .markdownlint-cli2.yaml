@@ -1,0 +1,15 @@
+# Prose in docs/ is written to wrap around 80, but link-heavy lines and long
+# ADR headings run over; 100 is the hard limit. Tables and code blocks cannot
+# reasonably wrap, and the ASCII architecture diagrams are not any language,
+# so MD040's "tag your fences" does not apply to them. MD060 (aligning table
+# pipes to the header) is cosmetic and painful to maintain by hand.
+config:
+  MD013:
+    line_length: 100
+    tables: false
+    code_blocks: false
+  MD040: false
+  MD060: false
+globs:
+  - "docs/**/*.md"
+  - "README.md"

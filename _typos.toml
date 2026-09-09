@@ -1,0 +1,6 @@
+# docs/gitops.md and docs/plan/phase-1-core-model.md deliberately misspell
+# `memory` as `memroy` to show what Daedalus's YAML error output looks like
+# ("did you mean `memory`?"). Allow that one word so `typos` stays useful for
+# catching real mistakes.
+[default.extend-words]
+memroy = "memroy"

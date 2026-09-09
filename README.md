@@ -55,9 +55,21 @@ a web dashboard, and both speak to the same API — there is no back door.
 | [Providers](docs/providers.md) | The provider trait; Proxmox vs libvirt vs KubeVirt |
 | [CLI](docs/cli.md) | Command surface and UX conventions |
 | [Tech stack](docs/tech-stack.md) | Crate choices, workspace layout, and why |
+| [Development](docs/development.md) | The Nix dev shell: tools, fuzzy search, fonts |
 | [Decisions](docs/decisions.md) | Numbered architecture decisions with rationale |
 | [Roadmap](docs/roadmap.md) | The ten phases, at a glance |
 | [Implementation plan](docs/plan/) | Detailed, step-by-step build instructions per phase |
+
+## Getting started
+
+```bash
+nix develop
+```
+
+This gives you the full toolchain — Rust, `kubectl`, `flux`, `sops`, `talosctl`
+and the rest — in a zsh shell with oh-my-zsh, the agnoster theme, and fzf
+fuzzy search. See [docs/development.md](docs/development.md) for what is
+included and the one manual step (a Powerline font for the theme).
 
 ## Status
 
