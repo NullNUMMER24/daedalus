@@ -69,7 +69,8 @@ nix develop
 This gives you the full toolchain — Rust, `kubectl`, `flux`, `sops`, `talosctl`
 and the rest — in a zsh shell with oh-my-zsh, the agnoster theme, and fzf
 fuzzy search. See [docs/development.md](docs/development.md) for what is
-included and the one manual step (a Powerline font for the theme).
+included, and for the one manual step: pointing your terminal at a Powerline
+font so the theme renders.
 
 ## Status
 

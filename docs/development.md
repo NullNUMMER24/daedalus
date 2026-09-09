@@ -28,21 +28,41 @@ without replacing your shell — run `nix develop` when you want the zsh
 experience itself. Install [nix-direnv](https://github.com/nix-community/nix-direnv)
 for a cached reload.
 
-## ⚠️ Agnoster needs a Powerline font
+## Agnoster needs a Powerline font
 
-The theme draws its segment separators with glyphs outside ASCII. Without a
+The theme draws its segment separators with glyphs outside ASCII, so without a
 patched font you get boxes or question marks instead of `` and ``.
 
-Install a Nerd Font and select it in your terminal:
+Install it with Nix like everything else — home-manager:
 
-```bash
-brew install --cask font-meslo-lg-nerd-font
+```nix
+home.packages = [ pkgs.meslo-lgs-nf ];
 ```
 
-Then set it as the terminal font — iTerm2: *Settings → Profiles → Text → Font*;
-Ghostty: `font-family = MesloLGS Nerd Font`; Terminal.app: *Settings → Profiles
-→ Text*. Nix cannot do this for you: a devShell package is not registered with
-macOS's font system.
+or nix-darwin, which installs system-wide to `/Library/Fonts`:
+
+```nix
+fonts.packages = [ pkgs.meslo-lgs-nf ];
+```
+
+home-manager links these into `~/Library/Fonts/HomeManager/` on macOS and the
+system font server picks them up from there. `pkgs.nerd-fonts.meslo-lg` is the
+larger alternative if you want every variant rather than the four `MesloLGS NF`
+faces.
+
+The **one** genuinely manual step is telling your terminal to use it, because
+the terminal process starts before any shell running inside it — nothing a
+devShell does can restyle a window that is already open:
+
+- **Ghostty** — `font-family = MesloLGS NF`
+- **iTerm2** — Settings → Profiles → Text → Font
+- **Terminal.app** — Settings → Profiles → Text → Change…
+- **VS Code** — `"terminal.integrated.fontFamily": "MesloLGS NF"`
+
+Deliberately not wired into the devShell: a shellHook that wrote fonts into
+`~/Library/Fonts` would be changing your system as a side effect of entering a
+project directory. Font installation belongs in your user configuration, where
+it applies to every terminal you open — not to one repo.
 
 ## The three shells
 
@@ -135,7 +155,8 @@ The store is read-only, so anything that needs to write goes to
 
 ## Troubleshooting
 
-**Boxes or `?` in the prompt** — install a Nerd Font (see above).
+**Boxes or `?` in the prompt** — the font is not installed, or is installed but
+not selected in your terminal's settings (see above).
 
 **`nix develop` is slow the first time** — it is fetching the Rust toolchain and
 ~60 tools. Subsequent entries are instant. `nix develop .#ci` is much lighter.
