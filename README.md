@@ -21,10 +21,10 @@ a web dashboard, and both speak to the same API — there is no back door.
 
 | Name         | Role                | Why                                                                 |
 | ------------ | ------------------- | ------------------------------------------------------------------- |
-| **Daedalus** | The project         | The master craftsman who built the thing                            |
-| **Labyrinth**| Resource graph      | Resources and their dependencies, walked in topological order       |
-| **Ariadne**  | State thread        | The append-only thread of state — lets you retrace your steps (rollback, audit) |
-| **Icarus**   | Host agent          | Optional per-host agent. Named for the one who falls: the server never trusts it with authority it cannot verify |
+| **`Daedalus`* | The project         | The master craftsman who built the thing                            |
+| **`Labyrinth`**| Resource graph      | Resources and their dependencies, walked in topological order       |
+| **`Ariadne`**  | State thread        | The append-only thread of state — lets you retrace your steps (rollback, audit) |
+| **`Icarus`**   | Host agent          | Optional per-host agent. Named for the one who falls: the server never trusts it with authority it cannot verify |
 | **`dae`**    | CLI binary          | Short and typeable                                                  |
 | **`daedalusd`** | Server binary    | API + reconciler + web UI                                           |
 
