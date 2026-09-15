@@ -9,11 +9,15 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 pub enum CoreError {
     /// A resource name does not satisfy the naming rules.
-    #[error("invalid resource name {name:?}: {reason}")]
+    #[error("invalid name `{}`: {reason}", .name.escape_debug())]
     InvalidName { name: String, reason: String },
 
+    /// A byte quantity such as `8Gi` could not be parsed.
+    #[error("invalid quantity `{}`: {reason}", .input.escape_debug())]
+    InvalidQuantity { input: String, reason: String },
+
     /// A manifest declared a `kind` Daedalus does not know about.
-    #[error("unknown kind {0:?}")]
+    #[error("unknown kind `{}`", .0.escape_debug())]
     UnknownKind(String),
 
     /// One or more manifests failed validation.
@@ -93,14 +97,14 @@ mod tests {
         };
         assert_eq!(
             err.to_string(),
-            r#"invalid resource name "Web01": only lowercase letters, digits and hyphens"#
+            "invalid name `Web01`: only lowercase letters, digits and hyphens"
         );
     }
 
     #[test]
     fn unknown_kind_quotes_the_kind() {
         let err = CoreError::UnknownKind("Machnie".into());
-        assert_eq!(err.to_string(), r#"unknown kind "Machnie""#);
+        assert_eq!(err.to_string(), "unknown kind `Machnie`");
     }
 
     #[test]

@@ -6,5 +6,9 @@
 //! `docs/decisions.md`; `just core-purity` enforces it.
 
 pub mod error;
+pub mod name;
+pub mod quantity;
 
 pub use error::{CoreError, Result, ValidationError};
+pub use name::Name;
+pub use quantity::ByteSize;

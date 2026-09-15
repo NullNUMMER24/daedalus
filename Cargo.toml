@@ -19,9 +19,19 @@ publish = false
 [workspace.dependencies]
 anyhow = "1"
 clap = { version = "4", features = ["derive", "env"] }
+ipnet = "2"
+miette = { version = "7", default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde-saphyr = { version = "1", default-features = false, features = ["deserialize"] }
+strsim = "0.11"
 thiserror = "2"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+walkdir = "2"
+
+# Test-only
+insta = "1"
+proptest = "1"
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
