@@ -1,9 +1,8 @@
 //! Errors produced by the domain model.
 
-use std::fmt;
-use std::path::PathBuf;
-
 use thiserror::Error;
+
+use crate::ValidationError;
 
 /// Errors produced by the domain model.
 #[derive(Debug, Error)]
@@ -31,61 +30,10 @@ pub enum CoreError {
 /// Shorthand for results whose error is a [`CoreError`].
 pub type Result<T, E = CoreError> = std::result::Result<T, E>;
 
-/// A single problem found while validating a manifest.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ValidationError {
-    /// The manifest the problem is in, relative to the repository root.
-    pub path: PathBuf,
-    /// 1-based line number, when the problem can be pinned to one.
-    pub line: Option<usize>,
-    /// What is wrong.
-    pub message: String,
-    /// How to fix it, e.g. "did you mean `memory`?".
-    pub hint: Option<String>,
-}
-
-impl ValidationError {
-    pub fn new(path: impl Into<PathBuf>, message: impl Into<String>) -> Self {
-        Self {
-            path: path.into(),
-            line: None,
-            message: message.into(),
-            hint: None,
-        }
-    }
-
-    #[must_use]
-    pub fn at_line(mut self, line: usize) -> Self {
-        self.line = Some(line);
-        self
-    }
-
-    #[must_use]
-    pub fn with_hint(mut self, hint: impl Into<String>) -> Self {
-        self.hint = Some(hint.into());
-        self
-    }
-}
-
-/// Renders as `path:line: message (hint)`, the shape editors and terminals
-/// recognise as a clickable location.
-impl fmt::Display for ValidationError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.path.display())?;
-        if let Some(line) = self.line {
-            write!(f, ":{line}")?;
-        }
-        write!(f, ": {}", self.message)?;
-        if let Some(hint) = &self.hint {
-            write!(f, " ({hint})")?;
-        }
-        Ok(())
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::diagnostic::Code;
 
     const MANIFEST: &str = "tenants/acme/environments/prod/machines/web-01.yaml";
 
@@ -110,8 +58,8 @@ mod tests {
     #[test]
     fn validation_reports_how_many_errors_it_carries() {
         let err = CoreError::Validation(vec![
-            ValidationError::new(MANIFEST, "unknown field `memroy`"),
-            ValidationError::new(MANIFEST, "unresolved reference `prod-nett`"),
+            ValidationError::file(Code::Unreadable, MANIFEST, "not UTF-8"),
+            ValidationError::file(Code::Unreadable, MANIFEST, "not UTF-8 either"),
         ]);
         assert_eq!(err.to_string(), "validation failed with 2 error(s)");
 
@@ -119,22 +67,5 @@ mod tests {
             panic!("expected CoreError::Validation");
         };
         assert_eq!(errors.len(), 2, "no error may be dropped");
-    }
-
-    #[test]
-    fn validation_error_without_line_or_hint() {
-        let err = ValidationError::new(MANIFEST, "document is empty");
-        assert_eq!(err.to_string(), format!("{MANIFEST}: document is empty"));
-    }
-
-    #[test]
-    fn validation_error_with_line_and_hint() {
-        let err = ValidationError::new(MANIFEST, "unknown field `memroy`")
-            .at_line(14)
-            .with_hint("did you mean `memory`?");
-        assert_eq!(
-            err.to_string(),
-            format!("{MANIFEST}:14: unknown field `memroy` (did you mean `memory`?)")
-        );
     }
 }

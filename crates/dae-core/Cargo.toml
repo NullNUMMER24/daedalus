@@ -10,7 +10,11 @@ publish.workspace = true
 # D-012: nothing that performs I/O belongs here — no tokio, sqlx, reqwest,
 # axum or git2. Enforced by `just core-purity` in CI.
 [dependencies]
+ipnet = { workspace = true, features = ["serde"] }
+miette = { workspace = true }
 serde = { workspace = true }
+serde-saphyr = { workspace = true }
+strsim = { workspace = true }
 thiserror = { workspace = true }
 
 [dev-dependencies]

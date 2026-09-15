@@ -3,7 +3,8 @@
 # instead of a cfg_attr at the top of every crate.
 #
 # Scope: #[test] functions and #[cfg(test)] modules. Helper functions in
-# tests/*.rs are not covered and need their own #[expect(..., reason = "...")].
+# tests/*.rs are not covered: use #[expect(..., reason = "...")] on the helper,
+# or a file-level #![allow(..., reason = "...")] when the file is mostly helpers.
 allow-unwrap-in-tests = true
 allow-expect-in-tests = true
 allow-panic-in-tests = true
