@@ -1,0 +1,9 @@
+# The workspace denies unwrap/expect/panic in real code. In tests they are the
+# clearest way to state an expectation, so allow them there — once, here,
+# instead of a cfg_attr at the top of every crate.
+#
+# Scope: #[test] functions and #[cfg(test)] modules. Helper functions in
+# tests/*.rs are not covered and need their own #[expect(..., reason = "...")].
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true
+allow-panic-in-tests = true
