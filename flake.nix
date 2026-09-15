@@ -11,7 +11,9 @@
 
   outputs = { self, nixpkgs, rust-overlay }:
     let
-      systems = [ "aarch64-darwin" "x86_64-darwin" "aarch64-linux" "x86_64-linux" ];
+      # No x86_64-darwin: nixpkgs dropped Intel macOS in 26.11, so it no
+      # longer evaluates. `nix flake check --all-systems` catches this.
+      systems = [ "aarch64-darwin" "aarch64-linux" "x86_64-linux" ];
 
       forAllSystems = f: nixpkgs.lib.genAttrs systems (system:
         f (import nixpkgs {
