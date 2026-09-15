@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+# A new push to a PR cancels that PR's in-flight run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  # Read by the justfile: a stale Cargo.lock fails instead of being rewritten.
+  DAE_CARGO_FLAGS: --locked
+
+# Every job runs through the flake, so CI uses exactly the compiler and tool
+# versions `nix develop` gives you locally — no second source of truth.
+jobs:
+  rust:
+    name: fmt, clippy, tests, core purity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@v31
+      - uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+            target
+          key: cargo-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml', 'flake.lock', 'Cargo.lock') }}
+          restore-keys: cargo-${{ runner.os }}-
+      - name: just check
+        run: nix develop .#ci --command just check
+
+  deny:
+    name: licences and advisories
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@v31
+      - name: just deny
+        run: nix develop .#ci --command just deny
+
+  docs:
+    name: spelling and markdown
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@v31
+      # --inputs-from resolves nixpkgs to the flake's locked input: the same
+      # typos and markdownlint versions as the dev shell, without building it.
+      - name: just docs
+        run: >-
+          nix shell --inputs-from .
+          nixpkgs#just nixpkgs#typos nixpkgs#markdownlint-cli2
+          --command just docs
+
+  flake:
+    name: nix flake check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@v31
+      # --all-systems evaluates the shells for every platform, not just this
+      # runner's, so a system nixpkgs drops is caught here rather than by the
+      # next person on that platform.
+      - name: nix flake check
+        run: nix flake check --all-systems
