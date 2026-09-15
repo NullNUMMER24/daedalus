@@ -1,6 +1,9 @@
 //! `dae` — the Daedalus command-line client.
 
 mod logging;
+mod validate;
+
+use std::process::ExitCode;
 
 use clap::{Parser, Subcommand};
 
@@ -28,20 +31,30 @@ struct Cli {
 enum Command {
     /// Print version information
     Version,
+    /// Check a repository's manifests, without touching any infrastructure
+    Validate(validate::Args),
 }
 
-#[expect(
-    clippy::unnecessary_wraps,
-    reason = "no command can fail yet; `validate` will in Phase 1, and this \
-              expectation then goes unfulfilled and must be removed"
-)]
-fn main() -> anyhow::Result<()> {
+fn main() -> ExitCode {
     let cli = Cli::parse();
     logging::init(cli.verbose);
     tracing::debug!(?cli, "parsed arguments");
 
-    match cli.command {
-        Command::Version => println!("dae {VERSION}"),
+    match run(cli.command) {
+        Ok(code) => code,
+        Err(err) => {
+            eprintln!("error: {err:#}");
+            ExitCode::FAILURE
+        }
     }
-    Ok(())
+}
+
+fn run(command: Command) -> anyhow::Result<ExitCode> {
+    match command {
+        Command::Version => {
+            println!("dae {VERSION}");
+            Ok(ExitCode::SUCCESS)
+        }
+        Command::Validate(args) => validate::run(&args),
+    }
 }

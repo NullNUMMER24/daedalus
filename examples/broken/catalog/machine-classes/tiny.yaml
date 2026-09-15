@@ -1,0 +1,9 @@
+# MISTAKE: `MB` is not a unit. Daedalus uses `M` (10^6) or `Mi` (2^20).
+apiVersion: daedalus.io/v1alpha1
+kind: MachineClass
+metadata:
+  name: tiny
+spec:
+  cpu:
+    cores: 1
+  memory: 512MB

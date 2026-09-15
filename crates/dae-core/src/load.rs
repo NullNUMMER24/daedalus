@@ -393,12 +393,22 @@ impl Loader {
             Code::DuplicateKey => "duplicate key",
             _ => "",
         };
-        let help = parse_unknown(&err.message)
+        let suggestion = parse_unknown(&err.message)
             .and_then(|(found, expected)| did_you_mean(found, expected))
             .map(|best| format!("did you mean `{best}`?"));
+        // With a suggestion, the full list of alternatives is noise.
+        let message = match &suggestion {
+            Some(_) => err
+                .message
+                .split(", expected")
+                .next()
+                .unwrap_or(&err.message),
+            None => &err.message,
+        };
+        let help = suggestion;
 
         let mut diagnostic = origin
-            .error(code, &err.message)
+            .error(code, message)
             .label(err.span.map(|r| origin.shift(r)), label);
         if let Some(help) = help {
             diagnostic = diagnostic.with_help(help);
@@ -407,10 +417,16 @@ impl Loader {
     }
 
     /// Records the name of a document that failed to load. See [`Poisoned`].
+    ///
+    /// An invalid name is also recorded under the fix its error suggested
+    /// (`Debian_12` as `debian-12`): that is the name the author meant, and
+    /// what everything referencing it already says.
     fn poison(&mut self, doc: Document<'_>, scope: &Scope, kind: Kind) {
-        if let Some(name) = identity(doc) {
-            self.poisoned.insert((scope.clone(), kind, name));
+        let Some(name) = identity(doc) else { return };
+        if let Some(fixed) = crate::name::suggest_fix(&name) {
+            self.poisoned.insert((scope.clone(), kind, fixed));
         }
+        self.poisoned.insert((scope.clone(), kind, name));
     }
 
     /// Indexes parsed resources, reporting names defined twice.

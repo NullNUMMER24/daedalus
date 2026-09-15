@@ -1,0 +1,8 @@
+# MISTAKE: `proxmx` is not a provider type.
+apiVersion: daedalus.io/v1alpha1
+kind: Provider
+metadata:
+  name: pve-main
+spec:
+  type: proxmx
+  endpoint: https://pve.home.arpa:8006

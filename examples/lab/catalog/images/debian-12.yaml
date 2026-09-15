@@ -1,0 +1,6 @@
+apiVersion: daedalus.io/v1alpha1
+kind: Image
+metadata:
+  name: debian-12
+spec:
+  description: Debian 12 (bookworm), cloud-init enabled

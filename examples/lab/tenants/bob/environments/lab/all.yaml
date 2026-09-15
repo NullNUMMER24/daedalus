@@ -1,0 +1,26 @@
+# A second tenant on the same cluster. No class — every value set directly —
+# and addresses from DHCP. The network is dual-stack in spirit, IPv6 here.
+apiVersion: daedalus.io/v1alpha1
+kind: Network
+metadata:
+  name: lab-net
+spec:
+  provider: pve-main
+  cidr: fd00:b0b::/64
+  gateway: fd00:b0b::1
+---
+apiVersion: daedalus.io/v1alpha1
+kind: Machine
+metadata:
+  name: k3s-01
+spec:
+  provider: pve-main
+  image: ubuntu-24-04
+  cpu:
+    cores: 4
+  memory: 12Gi
+  disks:
+    - name: root
+      size: 64Gi
+  networks:
+    - ref: lab-net

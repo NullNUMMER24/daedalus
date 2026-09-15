@@ -4,3 +4,9 @@
 # catching real mistakes.
 [default.extend-words]
 memroy = "memroy"
+# Misspellings the tests feed the validator on purpose, to check that it
+# suggests the right word: `sise` -> `size`, `pve-mian` -> `pve-main`,
+# `Netwrok` -> `Network`.
+sise = "sise"
+mian = "mian"
+Netwrok = "Netwrok"

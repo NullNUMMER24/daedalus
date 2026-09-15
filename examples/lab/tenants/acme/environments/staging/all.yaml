@@ -1,0 +1,22 @@
+# Staging mirrors prod's names: environments are separate scopes, so
+# `prod-net` and `web-01` here do not collide with the ones in prod.
+apiVersion: daedalus.io/v1alpha1
+kind: Network
+metadata:
+  name: prod-net
+spec:
+  provider: pve-main
+  cidr: 10.30.10.0/24
+  gateway: 10.30.10.1
+---
+apiVersion: daedalus.io/v1alpha1
+kind: Machine
+metadata:
+  name: web-01
+spec:
+  provider: pve-main
+  image: debian-12
+  class: small-2x4
+  networks:
+    - ref: prod-net
+      address: 10.30.10.11

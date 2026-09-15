@@ -69,7 +69,7 @@ fn problem(input: &str) -> Option<String> {
 }
 
 /// `Web_01` -> `web-01`, if that is a valid name.
-fn suggest_fix(input: &str) -> Option<String> {
+pub(crate) fn suggest_fix(input: &str) -> Option<String> {
     let fixed: String = input
         .chars()
         .map(|c| match c {

@@ -1,0 +1,110 @@
+---
+source: crates/dae-cli/tests/cli.rs
+expression: stderr(&out)
+---
+dae::invalid-value
+
+  × invalid name `Debian_12`: contains `D`; only lowercase letters, digits and hyphens are allowed
+  │ (try `debian-12`)
+   ╭─[catalog/images/debian.yaml:5:9]
+ 4 │ metadata:
+ 5 │   name: Debian_12
+   ·         ─────────
+ 6 │ spec:
+   ╰────
+
+dae::invalid-value
+
+  × invalid quantity `512MB`: `MB` is not a unit: use `M` (powers of 1000) or `Mi` (powers of
+  │ 1024)
+   ╭─[catalog/machine-classes/tiny.yaml:9:11]
+ 8 │     cores: 1
+ 9 │   memory: 512MB
+   ·           ─────
+   ╰────
+
+dae::unknown-variant
+
+  × unknown variant `proxmx`
+   ╭─[platform/providers/pve-main.yaml:7:9]
+ 6 │ spec:
+ 7 │   type: proxmx
+   ·         ───┬──
+   ·            ╰── unknown value
+ 8 │   endpoint: https://pve.home.arpa:8006
+   ╰────
+  help: did you mean `proxmox`?
+
+dae::invalid-value
+
+  × address `10.20.11.20` is outside `10.20.10.0/24`
+    ╭─[tenants/acme/environments/prod/machines/db-01.yaml:15:16]
+ 14 │     - ref: prod-net
+ 15 │       address: 10.20.11.20
+    ·                ───────────
+ 16 │   dependsOn:
+    ╰────
+  help: network `prod-net` is `10.20.10.0/24`
+
+dae::unresolved-reference
+
+  × no Machine named `web-03` in `acme/prod`
+    ╭─[tenants/acme/environments/prod/machines/db-01.yaml:17:7]
+ 16 │   dependsOn:
+ 17 │     - Machine/web-03
+    ·       ───────┬──────
+    ·              ╰── not found
+    ╰────
+  help: did you mean `web-02`?
+
+dae::unknown-field
+
+  × unknown field `memroy`
+    ╭─[tenants/acme/environments/prod/machines/web-01.yaml:11:3]
+ 10 │     cores: 2
+ 11 │   memroy: 4Gi
+    ·   ───┬──
+    ·      ╰── unknown field
+    ╰────
+  help: did you mean `memory`?
+
+dae::unresolved-reference
+
+  × no Network named `prod-nett` in `acme/prod`
+    ╭─[tenants/acme/environments/prod/machines/web-02.yaml:13:12]
+ 12 │   networks:
+ 13 │     - ref: prod-nett
+    ·            ────┬────
+    ·                ╰── not found
+    ╰────
+  help: did you mean `prod-net`?
+
+dae::invalid-value
+
+  × `10.20.10.1/24` has host bits set
+   ╭─[tenants/acme/environments/prod/networks/prod-net.yaml:8:9]
+ 7 │   provider: pve-main
+ 8 │   cidr: 10.20.10.1/24
+   ·         ─────────────
+ 9 │   gateway: 10.20.10.1
+   ╰────
+  help: did you mean `10.20.10.0/24`?
+
+dae::scope-mismatch
+
+  × `metadata.tenant` is `acme`, but this file is under `tenants/bob/`
+   ╭─[tenants/bob/environments/lab/k3s.yaml:7:11]
+ 6 │   name: k3s-01
+ 7 │   tenant: acme
+   ·           ──┬─
+   ·             ╰── does not match the file's location
+ 8 │ spec:
+   ╰────
+  help: the directory decides the tenant: remove `metadata.tenant`, or move the file
+
+dae::missing-tenant
+
+  × tenant `bob` has resources but no `tenants/bob/tenant.yaml`
+  help: create it with `kind: Tenant` and `metadata.name: bob`
+
+✗ 10 errors in 9 files

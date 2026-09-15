@@ -1,0 +1,9 @@
+# MISTAKE: host bits set — the network is 10.20.10.0/24.
+apiVersion: daedalus.io/v1alpha1
+kind: Network
+metadata:
+  name: prod-net
+spec:
+  provider: pve-main
+  cidr: 10.20.10.1/24
+  gateway: 10.20.10.1

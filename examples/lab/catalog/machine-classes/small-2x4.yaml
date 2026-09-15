@@ -1,0 +1,11 @@
+apiVersion: daedalus.io/v1alpha1
+kind: MachineClass
+metadata:
+  name: small-2x4
+spec:
+  cpu:
+    cores: 2
+  memory: 4Gi
+  disks:
+    - name: root
+      size: 20Gi

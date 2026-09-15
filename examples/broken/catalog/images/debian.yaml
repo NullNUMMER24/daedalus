@@ -1,0 +1,7 @@
+# MISTAKE: names are lowercase DNS labels — no capitals or underscores.
+apiVersion: daedalus.io/v1alpha1
+kind: Image
+metadata:
+  name: Debian_12
+spec:
+  description: Debian 12

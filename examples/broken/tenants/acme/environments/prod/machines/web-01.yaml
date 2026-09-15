@@ -1,0 +1,11 @@
+# MISTAKE: a typo in a field name.
+apiVersion: daedalus.io/v1alpha1
+kind: Machine
+metadata:
+  name: web-01
+spec:
+  provider: pve-main
+  image: debian-12
+  cpu:
+    cores: 2
+  memroy: 4Gi

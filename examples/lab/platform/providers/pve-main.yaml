@@ -1,0 +1,9 @@
+# The Proxmox cluster in the rack. Platform-wide: every tenant's resources run
+# here, each tenant through its own pool-scoped API token (Phase 3).
+apiVersion: daedalus.io/v1alpha1
+kind: Provider
+metadata:
+  name: pve-main
+spec:
+  type: proxmox
+  endpoint: https://pve.home.arpa:8006

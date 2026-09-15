@@ -694,6 +694,29 @@ fn suggestions_never_reveal_another_tenants_resources() {
 }
 
 #[test]
+fn an_invalid_name_is_assumed_to_mean_its_suggested_fix() {
+    let mut files = base();
+    replace(&mut files, IMAGE, "name: debian-12", "name: Debian_12");
+    let err = only(&files);
+    assert!(err.message().contains("(try `debian-12`)"), "{err}");
+}
+
+#[test]
+fn a_suggestion_replaces_the_list_of_alternatives() {
+    let mut files = base();
+    replace(&mut files, MACHINE, "memory: 16Gi", "memroy: 16Gi");
+    assert_eq!(only(&files).message(), "unknown field `memroy`");
+
+    let mut files = base();
+    replace(&mut files, MACHINE, "memory: 16Gi", "colour: blue");
+    assert!(
+        only(&files)
+            .message()
+            .starts_with("unknown field `colour`, expected one of")
+    );
+}
+
+#[test]
 fn a_broken_resource_is_reported_once_not_at_every_reference() {
     let mut files = base();
     replace(&mut files, NETWORK, "cidr:", "cdir:");

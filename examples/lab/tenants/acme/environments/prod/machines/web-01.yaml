@@ -1,0 +1,16 @@
+apiVersion: daedalus.io/v1alpha1
+kind: Machine
+metadata:
+  name: web-01
+  labels:
+    role: web
+spec:
+  provider: pve-main
+  image: debian-12
+  class: standard-4x8
+  networks:
+    - ref: prod-net
+      address: 10.20.10.11
+  # Created after the database is up.
+  dependsOn:
+    - Machine/db-01

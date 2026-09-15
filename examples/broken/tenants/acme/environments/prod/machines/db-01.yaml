@@ -1,0 +1,17 @@
+# MISTAKES: an address outside the network, and a dependency on a machine
+# that does not exist.
+apiVersion: daedalus.io/v1alpha1
+kind: Machine
+metadata:
+  name: db-01
+spec:
+  provider: pve-main
+  image: debian-12
+  cpu:
+    cores: 4
+  memory: 16Gi
+  networks:
+    - ref: prod-net
+      address: 10.20.11.20
+  dependsOn:
+    - Machine/web-03

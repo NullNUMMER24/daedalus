@@ -1,0 +1,13 @@
+# MISTAKE: a typo in a reference.
+apiVersion: daedalus.io/v1alpha1
+kind: Machine
+metadata:
+  name: web-02
+spec:
+  provider: pve-main
+  image: debian-12
+  cpu:
+    cores: 2
+  memory: 4Gi
+  networks:
+    - ref: prod-nett
