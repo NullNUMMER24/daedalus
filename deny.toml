@@ -1,0 +1,35 @@
+# cargo-deny policy for dependencies. Run with `just deny`.
+# Reference: https://embarkstudios.github.io/cargo-deny/checks/cfg.html
+
+[graph]
+all-features = true
+
+[advisories]
+# Every RustSec advisory fails the check. To accept one, add its ID here with a
+# comment saying why it does not apply and when to look again.
+ignore = []
+
+[licenses]
+# Permissive licences only: compatible with whichever licence Daedalus adopts.
+allow = [
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "MIT",
+    "Unicode-3.0",
+    "Zlib",
+]
+confidence-threshold = 0.9
+# Workspace crates are `publish = false`; licence policy is about dependencies.
+private = { ignore = true }
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+allow-wildcard-paths = true
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
