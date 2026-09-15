@@ -13,3 +13,4 @@ config:
 globs:
   - "docs/**/*.md"
   - "README.md"
+  - "CONTRIBUTING.md"

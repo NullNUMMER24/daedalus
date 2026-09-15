@@ -361,12 +361,13 @@ anyone else contributes.
 
 ## Definition of done
 
-- [ ] `just check` passes locally
-- [ ] CI green on all three jobs
-- [ ] `dae version` prints version + git SHA
-- [ ] `cargo clippy` denies `unwrap()` in non-test code
-- [ ] `RUST_LOG=debug` changes the output
-- [ ] Workspace has `dae-core` and `dae-cli`, both linted from the workspace
+- [x] `just check` passes locally
+- [ ] CI green on all four jobs — written and actionlint-clean; not yet run,
+      because the branch has not been pushed
+- [x] `dae version` prints version + git SHA
+- [x] `cargo clippy` denies `unwrap()` in non-test code
+- [x] `RUST_LOG=debug` changes the output
+- [x] Workspace has `dae-core` and `dae-cli`, both linted from the workspace
 
 ## Pitfalls
 
@@ -379,3 +380,34 @@ anyone else contributes.
 - **Fighting `clippy::pedantic`.** If a pedantic lint is genuinely noisy for your
   style, `allow` it in the workspace config and move on. Do not let it become a
   reason to disable clippy entirely.
+
+---
+
+## As built
+
+Where the implementation departed from the sample code above, and why. The
+steps are left as written, so the original reasoning stays readable.
+
+| Step | Plan said | Built | Why |
+| --- | --- | --- | --- |
+| 0.1 | Install with rustup, pin `1.90` | `nix develop`; `rust-toolchain.toml` pins `1.98.1` | The flake reads the toolchain file, so nix, rustup and CI share one compiler |
+| 0.2 | `members = ["crates/*", "bin/*"]` | `members = ["crates/*"]` | Cargo reads a glob matching nothing as a literal path and refuses to load the workspace. Add `bin/*` in Phase 5 |
+| 0.2 | `cargo new … --name dae` | Package `dae-cli`, `[[bin]] name = "dae"` | Matches the crate layout in [tech-stack.md](../tech-stack.md) |
+| 0.3 | `#![cfg_attr(test, allow(clippy::unwrap_used))]` per crate | `clippy.toml`: `allow-{unwrap,expect,panic}-in-tests` | Once, centrally. Covers `#[test]` fns and `#[cfg(test)]` modules only — helpers in `tests/*.rs` need their own `#[expect(…, reason = …)]` |
+| 0.3 | `module_name_repetitions = "allow"` | Omitted | No longer fires under pedantic; `error::CoreError` passes |
+| 0.6 | `fmt::layer()` | `.with_writer(std::io::stderr)`, ANSI only on a TTY without `NO_COLOR` | The sample logged to **stdout**, breaking `dae … -o json \| jq` |
+| 0.6 | Default level `warn,dae=info` | `warn` | A CLI should be quiet unless asked; `-v` for info |
+| 0.7 | `build.rs` watching `.git/HEAD` | `git rev-parse --git-path` for HEAD, packed-refs and the branch ref | The sample's path was relative to the crate dir, ignored new commits, broke in worktrees, and printed a blank SHA outside a checkout. `DAEDALUS_GIT_SHA` overrides for builds without `.git` |
+| 0.7 | `fn main() -> anyhow::Result<()>` | Same, under `#[expect(clippy::unnecessary_wraps, reason = …)]` | Nothing can fail yet. When `validate` can, the expectation goes unfulfilled and clippy forces its removal |
+| 0.8 | `dtolnay/rust-toolchain` + separate `cargo-deny-action` | Every job runs through the flake | A second source of truth for tool versions is exactly what the flake exists to prevent |
+| 0.8 | Three jobs | Four: rust, deny, docs, `nix flake check --all-systems` | `--all-systems` caught nixpkgs dropping `x86_64-darwin`, which a host-only check missed |
+| 0.8 | `core-purity` inline in CI | `just core-purity`, normal and build edges only | Runnable locally; a `tokio` dev-dependency for tests is allowed. Verified both ways |
+| 0.9 | Pick a licence | **Not yet chosen** | Your call — see step 0.9. Crates are `publish = false`, so `cargo deny` treats them as private meanwhile |
+
+Also added beyond the plan: `just deny`, `just docs`, `just watch` (bacon, since
+`cargo-watch` is unmaintained), and a `DAE_CARGO_FLAGS` hook so CI builds with
+`--locked` without local recipes failing after every dependency change.
+
+One thing to know about: nextest occasionally reports a `LEAK` on the very first
+run after a build on macOS. It is the OS scanning freshly built binaries, not the
+test — five subsequent runs were clean.

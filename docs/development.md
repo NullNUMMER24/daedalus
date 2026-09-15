@@ -75,6 +75,23 @@ it applies to every terminal you open — not to one repo.
 `nix develop -c <cmd>` always stays in bash, so scripts, CI, and direnv never
 land in an interactive zsh. That is what the `$-` check in the shellHook is for.
 
+## Everyday tasks
+
+Recipes live in the [`justfile`](../justfile); `just --list` shows them all.
+
+| Command | Does |
+| --- | --- |
+| `just` / `just check` | fmt, clippy, tests, and the `dae-core` purity rule — what CI runs |
+| `just fix` | Format, and apply clippy's automatic fixes |
+| `just test` | Tests only, via nextest |
+| `just watch` | Re-run tests on every save (bacon) |
+| `just deny` | Dependency licences and security advisories |
+| `just docs` | Spell-check the repo, lint the markdown |
+| `just run version` | Run `dae` with arguments |
+
+CI runs the same recipes inside `nix develop .#ci`, so passing locally means
+passing in CI.
+
 ## What is included
 
 **Rust** — the toolchain (with `rust-analyzer`, `clippy`, `rustfmt`, `rust-src`),
