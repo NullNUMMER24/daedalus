@@ -37,7 +37,7 @@ wrong. Update these documents as you go — a stale plan is worse than no plan.
 ## Progress
 
 - [ ] Phase 0 — Foundations — done locally; CI runs once pushed, licence undecided
-- [ ] Phase 1 — Core model
+- [ ] Phase 1 — Core model — done locally; CI runs once pushed
 - [ ] Phase 2 — Git integration
 - [ ] Phase 3 — Proxmox provider
 - [ ] Phase 4 — Engine

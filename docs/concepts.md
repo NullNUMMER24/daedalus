@@ -69,12 +69,12 @@ it gives you a free mental model for `get`/`describe`/`apply`.
 | Kind | Purpose | Phase |
 | --- | --- | --- |
 | `Tenant` | An isolation boundary, its quota and its keys | 1 |
-| `Environment` | A named subdivision within a tenant | 1 |
+| `Environment` | A named subdivision within a tenant — a directory, not a manifest | 1 |
 | `Provider` | Connection details for a hypervisor or cluster | 3 |
 | `Image` | A bootable disk image or VM template | 3 |
 | `MachineClass` | A named CPU/RAM/disk shape (`standard-4x8`) | 3 |
 | `Machine` | One virtual machine | 3 |
-| `Network` | An L2 segment — a VLAN or bridge | 8 |
+| `Network` | An environment's network: provider, CIDR, gateway. The VLAN behind it is platform-allocated | 8 |
 | `Subnet` | An L3 range with IPAM and DNS settings | 8 |
 | `Volume` | A block device independent of a machine's lifecycle | 8 |
 | `Cluster` | A Kubernetes cluster | 7 |
@@ -83,6 +83,10 @@ it gives you a free mental model for `get`/`describe`/`apply`.
 | `Secret` | An age/SOPS-encrypted value | 8 |
 | `Quota` | Resource limits applied to a tenant | 5 |
 | `Policy` | A Cedar authorisation policy | 5 |
+
+The phase is when Daedalus starts *acting* on a kind. `Provider`, `Image`,
+`MachineClass`, `Tenant`, `Network` and `Machine` manifests are already parsed
+and validated — `dae validate` checks their fields, references and addresses.
 
 `MachineClass` and `Image` are worth calling out: they live in a shared
 **catalog** that the platform admin curates. Tenants reference them but cannot

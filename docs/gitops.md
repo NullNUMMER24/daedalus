@@ -86,57 +86,82 @@ day one. Then both layouts are the same code path, and you never have to migrate
 Deliberately Kubernetes-shaped. You already know how to read it, and it gives
 `get`/`describe`/`apply` an obvious meaning.
 
+This is the schema `dae validate` accepts today. Complete, working manifests of
+every kind live in [`examples/lab`](../examples/lab); run `dae validate` on it
+after changing anything here.
+
 ```yaml
 apiVersion: daedalus.io/v1alpha1
 kind: Machine
 metadata:
   name: web-01
-  # tenant and environment are inferred from the file's path and may be
-  # omitted; if present they must match, which catches copy-paste mistakes.
+  # tenant and environment come from the file's path and may be omitted;
+  # if present they must match, which catches copy-paste mistakes.
   tenant: acme
   environment: prod
   labels:
     role: web
     tier: frontend
   annotations:
-    daedalus.io/protected: "true"          # refuse deletion
-    daedalus.io/drift-policy: report        # report | correct | ignore
+    daedalus.io/protected: "true"
 spec:
-  class: standard-4x8                       # from the catalog
-  provider: pve-main
-  image: debian-12-cloud
+  provider: pve-main                        # platform/providers/
+  image: debian-12                          # catalog/images/
+  class: standard-4x8                       # catalog/machine-classes/, optional
 
   # Explicit fields override the class.
   memory: 16Gi
 
+  # A disk with the same name as one in the class replaces it; the rest are added.
   disks:
     - name: root
-      size: 40Gi
+      size: 60Gi
       storage: tenant-acme-ssd
       discard: true
     - name: data
       size: 200Gi
-      storage: tenant-acme-hdd
 
   networks:
-    - ref: prod-net
-      ipam: static
-      address: 10.20.10.11/24
-      gateway: 10.20.10.1
+    - ref: prod-net                         # a Network in the same environment
+      address: 10.20.10.11                  # omit for DHCP
 
-  cloudInit:
+  # Ordering within the environment: a Machine or a Network.
+  dependsOn:
+    - Machine/db-01
+```
+
+The gateway and prefix belong to the network, not to each machine:
+
+```yaml
+apiVersion: daedalus.io/v1alpha1
+kind: Network
+metadata:
+  name: prod-net
+spec:
+  provider: pve-main
+  cidr: 10.20.10.0/24
+  gateway: 10.20.10.1
+```
+
+VLAN IDs are deliberately absent: the platform allocates them per tenant, so a
+tenant cannot claim one belonging to someone else (see
+[multi-tenancy](multitenancy.md#network)).
+
+**Planned, not yet accepted.** These arrive with the phase that acts on them,
+and are rejected as unknown fields until then:
+
+```yaml
+spec:
+  cloudInit:                     # Phase 3, with the Proxmox provider
     hostname: web-01
     sshKeysFrom:
-      - secretRef: acme-ssh-keys
-    userDataFrom:
-      secretRef: web-01-userdata
-
-  lifecycle:
+      - secretRef: acme-ssh-keys # Secret kind, Phase 8
+  lifecycle:                     # Phase 3
     startOnBoot: true
-    protection: true          # hypervisor-level delete protection too
-
-  dependsOn:
-    - Network/prod-net
+    protection: true
+metadata:
+  annotations:
+    daedalus.io/drift-policy: report   # Phase 4, with drift detection
 ```
 
 ### Every kind shares this shape
@@ -156,23 +181,26 @@ kind: MachineClass
 metadata:
   name: standard-4x8
 spec:
-  cpu: { cores: 4, type: host }
+  cpu:
+    cores: 4
   memory: 8Gi
   disks:
     - name: root
       size: 40Gi
-  defaults:
-    lifecycle: { startOnBoot: true }
 ```
 
-Merge semantics: the class provides defaults; the machine's own fields override
-them; lists merge by the `name` key rather than being replaced wholesale.
+Merge semantics: the class provides defaults and the machine's own fields
+override them. Disks merge by `name`: a machine disk replaces the class disk of
+the same name, keeping its position, and any other machine disks are appended.
+A value neither the machine nor its class sets is an error that says so.
 
 A constrained [minijinja](https://docs.rs/minijinja/) pass is available for
 cloud-init user-data only, where genuine templating is unavoidable. It runs in a
 sandbox with no filesystem, no environment, and no arbitrary function calls.
 
 ### Generators, for when you really do need N of something
+
+**Planned, not yet implemented.**
 
 ```yaml
 apiVersion: daedalus.io/v1alpha1
@@ -185,7 +213,7 @@ spec:
   template:
     spec:
       class: standard-4x8
-      networks: [{ ref: prod-net, ipam: pool }]
+      networks: [{ ref: prod-net }]
 ```
 
 Expanded at load time into individual `Machine` resources, which then plan and

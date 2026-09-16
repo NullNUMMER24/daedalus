@@ -74,5 +74,11 @@ font so the theme renders.
 
 ## Status
 
-Design phase. Nothing is implemented yet. Start at
-[docs/plan/phase-0-foundations.md](docs/plan/phase-0-foundations.md).
+Early. Phases 0 and 1 of the [implementation plan](docs/plan/) are built:
+`dae validate` loads a repository and reports every problem in it, with the
+exact location and a suggested fix. Nothing touches infrastructure yet.
+
+```bash
+dae validate examples/lab       # a valid two-tenant lab
+dae validate examples/broken    # what the errors look like
+```

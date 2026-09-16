@@ -392,15 +392,15 @@ changes.
 
 ## Definition of done
 
-- [ ] `dae validate ./examples/lab` succeeds and reports a summary
-- [ ] `dae validate ./examples/broken` prints spans, lines, and hints
-- [ ] Unknown fields are errors, not silently ignored
-- [ ] Tenant/environment inferred from path; mismatches rejected
-- [ ] Class merging works with list-merge-by-name semantics
-- [ ] Cross-tenant references are rejected
-- [ ] `ByteSize` round-trips (property-tested)
-- [ ] Snapshot tests cover the example repo
-- [ ] **Zero `async` in `dae-core`**
+- [x] `dae validate ./examples/lab` succeeds and reports a summary
+- [x] `dae validate ./examples/broken` prints spans, lines, and hints
+- [x] Unknown fields are errors, not silently ignored
+- [x] Tenant/environment inferred from path; mismatches rejected
+- [x] Class merging works with list-merge-by-name semantics
+- [x] Cross-tenant references are rejected
+- [x] `ByteSize` round-trips (property-tested)
+- [x] Snapshot tests cover the example repo
+- [x] **Zero `async` in `dae-core`**
 
 ## Pitfalls
 
@@ -412,3 +412,42 @@ changes.
 - **Failing on the first error.** Collect them. Users have more than one typo.
 - **Perfecting the model.** It will be wrong; Phase 3 will show you how. Optimise
   for *changeability*, not correctness — keep it small and well-tested.
+
+---
+
+## As built
+
+Where the implementation departed from the steps above, and why.
+
+| Step | Plan said | Built | Why |
+| --- | --- | --- | --- |
+| 1.1 | `Uid`, `TenantId`, `PrincipalId` | `Name` only | Nothing assigns identities until the store exists. Deferred to Phase 2 |
+| 1.3 | A maintained `serde_yaml` fork | `serde-saphyr` | The forks have not been updated since 2024. `serde-saphyr` is active and has `Spanned<T>`, byte-accurate locations, strict booleans, duplicate-key errors, and alias-expansion limits |
+| 1.3 | Public `Resource<S>` + `AnyResource` | Crate-private `Manifest<S>` with spans, resolved into a public `Resource` enum | Spans stay out of the public model, and resolved types have no `Option` for anything a class could supply |
+| 1.3 | `Cluster` kind | Deferred to Phase 7 | Nothing to validate it against before then |
+| 1.4 | `cloudInit`, `lifecycle` on machines | Deferred to Phase 3 | Rejected as unknown until the provider consumes them. [gitops.md](../gitops.md#manifest-format) marks them as planned |
+| 1.4 | Machine attachments carry `ipam`, a CIDR address and a gateway | `Network` owns `cidr` and `gateway`; an attachment has only a host `address` | One gateway per network, and addresses that can be checked against it |
+| 1.5 | `load_dir(&Path)` in `dae-core` | `load(sources)` in `dae-core`; the directory walk is in the CLI | Keeps the core free of I/O. Phase 2 will pass Git blobs to the same function |
+| 1.5 | Two-pass parse | Split into documents, parse a header, then parse as the kind | A syntax error in one document no longer hides the rest, and spans stay absolute within the file |
+| 1.6 | Tenant and environment from the path | Also: each kind has a home directory | A `Provider` under `catalog/` is a placement error, not a silent success |
+| 1.7 | Lists merge by name | Disks replace by name in place, with the rest appended. Networks do not merge | Network attachments describe one machine, not a shape |
+| 1.8 | Tenant-scoped references | Also: suggestions are scoped too, plus provider consistency, CIDR, gateway, address and conflict checks, and `dependsOn` | A "did you mean" must not reveal another tenant's resource names. Tested |
+| 1.9 | miette spans | Also: stable codes (`dae::unknown-field`), and error recovery | Tests match codes, not wording. A resource that fails to load still counts as defined — under its suggested name too, if its name is invalid — so one mistake produces one error |
+| 1.10 | `dae validate` | `main` now returns `ExitCode` | This removed Phase 0's `#[expect(unnecessary_wraps)]`, as that expectation intended |
+
+### What the numbers look like
+
+- 101 tests: unit and property tests in `dae-core`, 40 end-to-end loader tests
+  through the public API, and CLI tests including two insta snapshots.
+- `examples/broken` has ten deliberate mistakes, and `dae validate` reports ten
+  errors. The first draft reported thirteen. Reading the snapshot is what found
+  the three cascading errors.
+
+### Worth knowing
+
+- **Document splitting is line-based.** It relies on YAML's rule that `---` or
+  `...` at the start of a line always ends a document. A corpus test checks it
+  against the real parser, so a disagreement fails loudly.
+- **Suggestions for unknown fields come from parsing serde's message.** That is
+  tested against the library's real output, so an upstream wording change
+  breaks a test rather than silently dropping suggestions.
