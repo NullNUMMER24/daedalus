@@ -20,3 +20,6 @@
 .env.*
 !.env.example
 .DS_Store
+
+# obsidian
+.obsidian
