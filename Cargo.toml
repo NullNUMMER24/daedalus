@@ -9,3 +9,16 @@ license = "MIT OR Apache-2.0"
 
 [workspace.dependencies]
 # pin shared deps once here, then use `foo.workspace = true` in each crate
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+unused_qualifications = "warn"
+
+[workspace.lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+module_name_repetitions = "allow"
+missing_errors_doc = "allow"
+unwrap_used = "warn"
+dbg_macro = "warn"
+todo = "warn"
