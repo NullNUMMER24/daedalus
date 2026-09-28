@@ -1,6 +1,0 @@
-# Single source of truth for the Rust version. Read by rustup directly and by
-# flake.nix via rust-overlay's fromRustupToolchainFile, so `nix develop`, a
-# plain rustup install, and CI all compile with exactly the same compiler.
-[toolchain]
-channel = "1.98.1"
-components = ["rustfmt", "clippy", "rust-analyzer", "rust-src", "llvm-tools"]

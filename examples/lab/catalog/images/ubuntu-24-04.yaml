@@ -1,6 +1,0 @@
-apiVersion: daedalus.io/v1alpha1
-kind: Image
-metadata:
-  name: ubuntu-24-04
-spec:
-  description: Ubuntu 24.04 LTS, cloud-init enabled

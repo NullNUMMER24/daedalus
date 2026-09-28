@@ -1,6 +1,0 @@
----
-source: crates/dae-cli/tests/cli.rs
-expression: stdout(&out)
----
-✓ 16 resources in 2 tenants, 3 environments
-  1 Provider · 2 Images · 2 MachineClasses · 2 Tenants · 4 Networks · 5 Machines
