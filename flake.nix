@@ -136,17 +136,22 @@
           ];
 
           zdotdir = import ./nix/zsh.nix { inherit pkgs; };
+          neovim = import ./nix/neovim.nix { inherit pkgs; };
 
           commonPackages =
             [ rustToolchain ]
             ++ nativeBuild ++ systemLibs
             ++ rustTools ++ kubeTools ++ infraTools
-            ++ apiTools ++ gitTools ++ lintTools ++ shellTools;
+            ++ apiTools ++ gitTools ++ lintTools ++ shellTools
+            ++ [ neovim ];
 
           commonEnv = ''
             # Writable home for anything that cannot use the read-only store.
             export DAEDALUS_STATE="$PWD/.direnv/daedalus"
             mkdir -p "$DAEDALUS_STATE"
+
+            export EDITOR=nvim
+            export VISUAL=nvim
 
             export RUST_BACKTRACE=1
             export RUST_SRC_PATH="${rustToolchain}/lib/rustlib/src/rust/library"
@@ -173,8 +178,10 @@
             shellHook = commonEnv + ''
               # $- contains 'i' only when nix started an interactive bash, so
               # `nix develop -c cargo build` and direnv never land in zsh.
-              if [[ $- == *i* && -z ''${DAEDALUS_IN_ZSH:-} ]]; then
-                export DAEDALUS_IN_ZSH=1
+              # No "already in zsh" guard: exec never re-runs this hook, and an
+              # inherited guard variable would strand a nested `nix develop`
+              # in bash.
+              if [[ $- == *i* ]]; then
                 export ZDOTDIR="${zdotdir}"
                 export SHELL="${pkgs.zsh}/bin/zsh"
                 exec "${pkgs.zsh}/bin/zsh"

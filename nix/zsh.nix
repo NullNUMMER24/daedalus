@@ -129,6 +129,8 @@ let
     alias g='git'
     alias lg='lazygit'
     alias k='kubectl'
+    alias vim='nvim'
+    alias vi='nvim'
 
     # Project shorthands, mirroring the justfile in docs/plan/phase-0.
     alias c='cargo'
